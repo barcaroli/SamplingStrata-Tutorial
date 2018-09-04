@@ -1,10 +1,10 @@
 nations <- read.csv("nations.csv")
 library(psycho)
 # Correlation matrix
-nations$logGDP <- log(nations$GDP)
-nations$logTFR <- log(nations$TFR)
-nations$logINFMORT <- log(nations$infant.mortality)
-nations$logCONTRACEPT <- log(nations$contraception)
+# nations$logGDP <- log(nations$GDP)
+# nations$logTFR <- log(nations$TFR)
+# nations$logINFMORT <- log(nations$infant.mortality)
+# nations$logCONTRACEPT <- log(nations$contraception)
 cor <- correlation(df=nations[,c(2:5)])
 summary(cor)
 # plot(cor)
@@ -50,7 +50,7 @@ cv
 strata1 <- buildStrataDF(frame)
 checkInput(cv,strata1,frame)
 set.seed(1234)
-kmean <- KmeansSolution(strata1,cv)
+# kmean <- KmeansSolution(strata1,cv)
 solution1 <- optimizeStrata(cv,
                            strata1,
                            iter = 50,
@@ -61,7 +61,7 @@ newstrata <- updateStrata(strata1,solution1)
 framenew <- updateFrame(frame,newstrata)
 framenew <- framenew[order(framenew$ID),]
 framenew$Y2 <- nations$infant.mortality
-results <- evalSolution(framenew, solution1$aggr_strata, 50, cens=NULL, writeFiles = TRUE)
+results <- evalSolution(framenew, solution1$aggr_strata, 100, cens=NULL, writeFiles = TRUE)
 results$coeff_var
 
 
@@ -84,11 +84,11 @@ model
  
 strata2 <- buildStrataDF(frame, model = modlog)
 set.seed(1234)
-kmean <- KmeansSolution(strata2,cv)
+# kmean <- KmeansSolution(strata2,cv)
 solution2 <- optimizeStrata(cv,
                            strata2,
                            iter = 50,
-                           suggestions = kmean
+                           suggestions = KmeansSolution(strata2,cv)
                            )
 # sum(solution2$aggr_strata$SOLUZ)
 
@@ -103,4 +103,4 @@ framenew$Y2 <- nations$infant.mortality
 results <- evalSolution(framenew, solution2$aggr_strata, 50, cens=NULL, writeFiles = TRUE)
 results$coeff_var
 
-save.image(file="nations_models.RData")
+save.image(file="nations_models 1b.RData")

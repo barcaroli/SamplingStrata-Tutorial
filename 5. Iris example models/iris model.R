@@ -77,7 +77,7 @@ framenew2$Y1 <- iris$Petal.Width
 framenew2$Y2 <- iris$Petal.Length
 framenew2$Y3 <- iris$Sepal.Width
 framenew2$Y4 <- iris$Sepal.Length
-results2 <- evalSolution(framenew2, solution2$aggr_strata, 200, cens=NULL, writeFiles = TRUE)
+results2 <- evalSolution(framenew2, solution2$aggr_strata, 200)
 results2$coeff_var
 
 save.image(file="iris models.RData")

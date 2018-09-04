@@ -1,30 +1,37 @@
 ---
-title: "Example with dataset 'Nations'"
+title: "SamplingStrata Modelling Anticipated Variance"
 author: "Giulio Barcaroli"
 date: "Created 26 Aug, 2018; Last Update `r format(Sys.time(), '%d %B, %Y')`"
 output: 
   ioslides_presentation
+widescreen: true
+smaller: true
 ---
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  comment = "#>",
-  fig.align = "centre",
-  fig.height = 4,
-  message = FALSE,
-  warning = FALSE,
-  error = FALSE)
-
-```
-
 ```{r, include = F}
 # Run for internal use (not shown on slides)
-load("Nations.RData")
+load("nations_models.RData")
+library(SamplingStrata)
 ```
 
-## Dataset "nations"
 
+## Handling Anticipated Variance {.smaller}
+
+When optimizing the stratification of a sampling frame, values of the target variables Y's are available for the generality of the units in the frame, or at least for a sample of them by means of which it is possible to estimate means and standard deviation of Y's in atomic strata. 
+
+Of course, this assumption is seldom expected to hold. The situation in which some proxy variables are available in the frame is much more likely to happen. 
+
+In these situations, instead of directly indicating the real target variables, proxy ones are named as Y's. By so doing, there is no guarantee that the final stratification and allocation can ensure the compliance to the set of precision constraints.
+
+## Handling Anticipated Variance {.smaller}
+
+In order to take into account this problem, and to limit the risk of overestimating the expected precision levels of the optimized solution, it is possible to carry out the optimization by considering, instead of the expected coefficients of variation related to proxy variables, the anticipated coefficients of variation (ACV) that depend on the model that is possile to fit on couples of real target variables and proxy ones. 
+
+In the current implementation, only models linking continuous variables can be considered. 
+
+
+## Example with dataset 'Nations' {.smaller}
 - Data on 207 countries related to demographic variables
 
 
@@ -33,43 +40,119 @@ nations <- read.csv("nations.csv")
 head(nations)
 ```
 
-## Step 1: derive 'sampling frame' from dataset
+## Example with dataset 'Nations' {.smaller}
+
+Let us assume that in the sampling frame only variable **GDP** (Gross Domestic Product) is available for all countries, while **contraception rates** and **infant mortality rates** are available only on a subset of countries (about one third).
 
 ```{r, eval = T}
-library(SamplingStrata)
-frame <- buildFrameDF(nations,
-                      id="Country",
-                      X="Country",
-                      Y=c("TFR","contraception",
-                          "infant.mortality","GDP"),
-                      domainvalue = "Continent")
-
-head(frame)
+set.seed(1234)
+nations_sample <- nations[sample(c(1:207),70),]
 ```
 
-## Step 2: derive 'strata' from the frame
+
+In this subset we can fit models between GDP and the two variables that we assume are the target of our survey.
+
+## Example with dataset 'Nations' {.smaller}
+
+One model for **infant mortality** and **GDP**:
 
 ```{r, eval = T}
-strata <- buildStrataDF(frame, progress = FALSE)
+mod_logGDP_INFMORT <- lm(log(nations_sample$infant.mortality) ~ log(nations_sample$GDP))
+summary(mod_logGDP_CONTRA)
+```
+
+## Example with dataset 'Nations' {.smaller}
+
+and one model for **contraception** and **GDP**:
+
+```{r, eval = T}
+mod_logGDP_CONTRA <- lm(log(nations_sample$contraception) ~ log(nations_sample$GDP))
+summary(mod_logGDP_CONTRA)
+```
+
+
+## Use of SamplingStrata ## {.smaller}
+
+We define the *sampling frame* in this way:
+
+
+```{r, eval = T}
+nations$progr <- c(1:nrow(nations))
+nations$dom <- 1
+frame <- buildFrameDF(nations,
+                      id="Country",
+                      X="progr",
+                      Y=c("GDP","GDP"),
+                      domainvalue = "dom")
+cv <- as.data.frame(list(DOM=rep("DOM1",1),
+                         CV1=rep(0.10,1),
+                         CV2=rep(0.05,1),
+                         domainvalue=c(1:1)
+                    ))
+```
+
+that is, we replicate twice the variable **GDP** because it will be used once for **infant mortality** and once for **contraception**. We set 10% and 5% precision constraints on these two variables.
+
+## Optimization without models {.smaller}
+
+We build the strata without any assumption on the variability of the two target variables, and proceed in the optimization:
+
+```{r, eval = T}
+strata1 <- buildStrataDF(frame, progress = FALSE)
+solution1 <- optimizeStrata(cv,
+                           strata1,
+                           iter = 50,
+                           suggestions = KmeansSolution(strata1,cv),
+                           writeFiles = TRUE,
+                           showPlot = FALSE)
+sum(solution1$aggr_strata$SOLUZ)
+```
+
+## Optimization without models {.smaller}
+
+Then, we evaluate the expected CV's on the three variables:
+
+```{r, eval = T}
+newstrata <- updateStrata(strata1,solution1)
+framenew1 <- updateFrame(frame,newstrata)
+framenew1 <- framenew1[order(framenew1$ID),]
+framenew1$Y2 <- nations$infant.mortality
+framenew1$Y3 <- nations$contraception
+results1 <- evalSolution(framenew1, solution1$aggr_strata, 50, progress = FALSE)
+results1$coeff_var
+```
+
+Clearly, the CV's on **infant mortality** and **contraception** are not compliant with the corresponding precision constraints.
+
+
+## Use of models in building strata {.smaller}
+
+We proceed in building the **strata** dataframe using the models:
+
+```{r, eval = T}
+model <- NULL
+model$beta[1] <- mod_logGDP_INFMORT$coefficients[2]
+model$sig2[1] <- summary(mod_logGDP_INFMORT)$sigma
+model$type[1] <- "loglinear"
+model$gamma[1] <- 0
+model$beta[2] <- mod_logGDP_CONTRA$coefficients[2]
+model$sig2[2] <- summary(mod_logGDP_CONTRA)$sigma
+model$type[2] <- "loglinear"
+model$gamma[2] <- 0
+model <- as.data.frame(model)
+model
+```
+
+```{r, eval = T}
+strata <- buildStrataDF(frame, model = model, progress = FALSE)
 head(strata)
 ```
 
-## Step 3: definition of precision constraints
+## Optimization {.smaller}
+
+We proceed with the optimization
 
 ```{r, eval = T}
-cv <- as.data.frame(list(DOM=rep("DOM1",5),
-                         CV1=rep(0.1,5),
-                         CV2=rep(0.1,5),
-                         CV3=rep(0.1,5),
-                         CV4=rep(0.1,5),
-                         domainvalue=c(1:5)
-                             ))
-cv
-```
-
-## Step 4: Optimization
-
-```{r, eval = F}
 solution1 <-
 	optimizeStrata(
 	errors = cv , 
@@ -79,86 +162,34 @@ solution1 <-
 	suggestions = NULL,
 	showPlot = FALSE,
 	writeFiles = FALSE)
+sum(solution1$aggr_strata$SOLUZ)
 ```
 
-## Solution
+This time the sample size is much higher.
 
-```{r, out.width = "400px", echo = FALSE}
-knitr::include_graphics("images/Rplot_domain5.png")
-```
-```{r, eval = T}
-sum(ceiling(solution1$aggr_strata$SOLUZ))	
-nrow(solution1$aggr_strata)	
+What about the expectd CV's?
 
-```
-
-## Initial suggestion with kmeans
+## Solution {.smaller}
 
 ```{r, eval = T}
-kmean <- KmeansSolution(strata, cv, nstrata=NA, showPlot = F)
-```
-
-## Best kmeans solution
-
-```{r, out.width = "500px", echo = FALSE}
-knitr::include_graphics("images/Rplot_kmeans_domain1.png")
-```
-
-## Step 4: Optimization
-
-```{r, eval = F}
-solution2 <-
-	optimizeStrata(
-	errors = cv , 
-	strata = strata, 
-	iter = 50, 
-	pops = 20, 
-	suggestions = kmean,
-	showPlot = FALSE,
-	writeFiles = FALSE)
-```
-
-## New solution with initial suggestion
-
-```{r, out.width = "400px", echo = FALSE}
-knitr::include_graphics("images/Rplot_domain5_kmeans.png")
-```
-```{r, eval = T}
-sum(ceiling(solution2$aggr_strata$SOLUZ))	
-nrow(solution2$aggr_strata)	
-```
-
-## Step 5: expected CV
-
-```{r, eval = F}
-newstrata <- updateStrata(strata,solution2)
-framenew <- updateFrame(frame,newstrata)
-results1 <- evalSolution(framenew, solution2$aggr_strata, 
-                         200, writeFiles=TRUE)
-```
-```{r, eval = T}
-results1$coeff_var
-```
-
-## CV
-
-```{r, out.width = "400px", echo = FALSE}
-knitr::include_graphics("images/cv_rounded.png")
-```
-
-## Improving expected CV
-
-```{r, eval = F}
-oustrata <- solution2$aggr_strata
-outstrata$SOLUZ <- ceiling(solution2$aggr_strata$SOLUZ)
-results2 <- evalSolution(framenew, outstrata, 200, writeFiles=TRUE)
-```
-```{r, eval = T}
+newstrata <- updateStrata(strata2,solution2)
+framenew2 <- updateFrame(frame,newstrata)
+framenew2 <- framenew2[order(framenew2$ID),]
+framenew2$Y2 <- nations$infant.mortality
+framenew2$Y3 <- nations$contraception
+results2 <- evalSolution(framenew2, solution2$aggr_strata, 200, progress = FALSE)
 results2$coeff_var
 ```
 
-## CV
+This time the expected CV's of all variables are more than compliant with the precision constraints.
 
-```{r, out.width = "400px", echo = FALSE}
-knitr::include_graphics("images/cv_ceiling.png")
+## Solution {.smaller}
+
+We can decrease the sample size and increase the expected CV's by using the function *adjustSize*:
+
+```{r, eval = T}
+adjustedStrata <- adjustSize(size=45,solution2$aggr_strata)
+results2 <- evalSolution(framenew2, adjustedStrata, 200, progress=FALSE)
+results2$coeff_var
 ```
+
