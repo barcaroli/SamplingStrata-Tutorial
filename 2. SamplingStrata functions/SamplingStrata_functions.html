@@ -128,15 +128,17 @@
 
 <ul class = 'build'>
 <li>a unique identifier of the unit (&#39;id&#39;);</li>
-<li>the values of M auxiliary variables (named from X1 to Xm);</li>
-<li>the (optional) values of P target variables (named from Y1 to Yp);</li>
+<li>the values of m auxiliary variables (named from X1 to Xm);</li>
+<li>the values of p target variables (named from Y1 to Yp);</li>
 <li>the value of the domain of interest for which we want to produce estimates (named &#39;domainvalue&#39;).</li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>Definition of the sampling frame data</h2></hgroup><article  id="definition-of-the-sampling-frame-data-1" class="smaller">
 
 <pre class = 'prettyprint lang-r'>library(SamplingStrata)
-data(swissmunicipalities)</pre>
+data(swissmunicipalities)
+# Only three regions
+swissmunicipalities &lt;- swissmunicipalities[swissmunicipalities$REG &lt; 4,]</pre>
 
 <p>we get the swissmunicipalities dataframe, that contains 2896 observations (each observation refers to a Swiss municipality). For reasons of processing time, here we consider only the first three regions (1823 municipalities). Among the others, there are the following variables (data are referred to 2003):</p>
 
@@ -287,7 +289,13 @@ swisserrors</pre>
 <pre >## 
 ## Input data have been checked and are compliant with requirements</pre>
 
-<p>This function controls that the number of auxiliary variables is the same in the frame and in the strata dataframes; that the number of target variables indicated in the frame dataframe is the same than the number of means and standard deviations in the strata dataframe, and the same than the number of coefficient of variations indicated in the errors dataframe.</p>
+<p>This function controls that</p>
+
+<ul>
+<li>the number of auxiliary variables is the same in the frame and in the strata dataframes;</li>
+<li>the number of target variables indicated in the frame dataframe is the same than the number of means and standard deviations in the strata dataframe,</li>
+<li>the number of target variables is the same than the number of coefficient of variations indicated in the errors dataframe.</li>
+</ul>
 
 </article></slide><slide class=""><hgroup><h2>Function &#39;bethel&#39;</h2></hgroup><article  id="function-bethel">
 
@@ -305,10 +313,26 @@ cv</pre>
 
 <p>The result of the application of the Bethel algorithm is:</p>
 
-<pre class = 'prettyprint lang-r'>allocation &lt;- bethel(swissstrata,cv)
+<pre class = 'prettyprint lang-r'>allocation &lt;- bethel(swissstrata,cv,printa=T)
 sum(allocation)</pre>
 
 <pre >## [1] 512</pre>
+
+<pre class = 'prettyprint lang-r'>attributes(allocation)$outcv</pre>
+
+<pre >##       TYPE   DOMAIN/VAR. PLANNED CV  ACTUAL CV SENSITIVITY 10%
+##  [1,] &quot;DOM1&quot; &quot;1/V1&quot;      &quot;0.08&quot;      &quot;0.0081&quot;  &quot;1&quot;            
+##  [2,] &quot;DOM1&quot; &quot;1/V2&quot;      &quot;0.12&quot;      &quot;0.0074&quot;  &quot;1&quot;            
+##  [3,] &quot;DOM1&quot; &quot;1/V3&quot;      &quot;0.08&quot;      &quot;0.0066&quot;  &quot;1&quot;            
+##  [4,] &quot;DOM1&quot; &quot;1/V4&quot;      &quot;0.12&quot;      &quot;0.0111&quot;  &quot;1&quot;            
+##  [5,] &quot;DOM1&quot; &quot;2/V1&quot;      &quot;0.08&quot;      &quot;0.0093&quot;  &quot;1&quot;            
+##  [6,] &quot;DOM1&quot; &quot;2/V2&quot;      &quot;0.12&quot;      &quot;0.0078&quot;  &quot;1&quot;            
+##  [7,] &quot;DOM1&quot; &quot;2/V3&quot;      &quot;0.08&quot;      &quot;0.0077&quot;  &quot;1&quot;            
+##  [8,] &quot;DOM1&quot; &quot;2/V4&quot;      &quot;0.12&quot;      &quot;0.0127&quot;  &quot;1&quot;            
+##  [9,] &quot;DOM1&quot; &quot;3/V1&quot;      &quot;0.08&quot;      &quot;0.0087&quot;  &quot;1&quot;            
+## [10,] &quot;DOM1&quot; &quot;3/V2&quot;      &quot;0.12&quot;      &quot;0.0077&quot;  &quot;1&quot;            
+## [11,] &quot;DOM1&quot; &quot;3/V3&quot;      &quot;0.08&quot;      &quot;0.0081&quot;  &quot;1&quot;            
+## [12,] &quot;DOM1&quot; &quot;3/V4&quot;      &quot;0.12&quot;      &quot;0.0113&quot;  &quot;1&quot;</pre>
 
 <p>That is, the required amount of units to be selected, with no optimization of sampling strata.</p>
 

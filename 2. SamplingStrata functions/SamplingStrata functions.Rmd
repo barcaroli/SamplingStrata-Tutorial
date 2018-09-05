@@ -15,8 +15,6 @@ data("swissmunicipalities")
 data("swisserrors")
 data("swissframe")
 data("swissstrata")
-# Only three regions
-swissmunicipalities <- swissmunicipalities[swissmunicipalities$REG < 4,]
 load("SamplingStrata functions.RData")
 ```
 
@@ -50,8 +48,8 @@ choice of the precision constraints for each target estimate, possibly different
 As a first step, we have to define a frame dataframe containing the following information:
 
 > - a unique identifier of the unit ('id');
-> - the values of M auxiliary variables (named from X1 to Xm);
-> - the (optional) values of P target variables (named from Y1 to Yp);
+> - the values of m auxiliary variables (named from X1 to Xm);
+> - the values of p target variables (named from Y1 to Yp);
 > - the value of the domain of interest for which we want to produce estimates (named 'domainvalue').
 
 ## Definition of the sampling frame data {.smaller}
@@ -59,6 +57,8 @@ As a first step, we have to define a frame dataframe containing the following in
 ```{r, eval = F}
 library(SamplingStrata)
 data(swissmunicipalities)
+# Only three regions
+swissmunicipalities <- swissmunicipalities[swissmunicipalities$REG < 4,]
 ```
 
 
@@ -206,7 +206,11 @@ checkInput(errors = swisserrors,
            sampframe = swissframe)
 ```
 
-This function controls that the number of auxiliary variables is the same in the frame and in the strata dataframes; that the number of target variables indicated in the frame dataframe is the same than the number of means and standard deviations in the strata dataframe, and the same than the number of coefficient of variations indicated in the errors dataframe.
+This function controls that 
+
+* the number of auxiliary variables is the same in the frame and in the strata dataframes; 
+* the number of target variables indicated in the frame dataframe is the same than the number of means and standard deviations in the strata dataframe, 
+* the number of target variables is the same than the number of coefficient of variations indicated in the errors dataframe.
 
 ## Function 'bethel'
 
@@ -224,8 +228,9 @@ because the **bethel** function does not permit to differentiate precision const
 The result of the application of the Bethel algorithm is:
 
 ```{r, eval=TRUE,echo=TRUE}
-allocation <- bethel(swissstrata,cv)
+allocation <- bethel(swissstrata,cv,printa=T)
 sum(allocation)
+attributes(allocation)$outcv
 ```
 That is, the required amount of units to be selected, with no optimization of sampling strata. 
 

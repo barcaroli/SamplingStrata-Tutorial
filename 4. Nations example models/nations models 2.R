@@ -12,9 +12,10 @@ plot(cor)
 # summary(corlog)
 # plot(corlog)
 # plot(nations[,c(2:5)])
-# plot(nations$GDP, nations$contraceptions)
-# plot(log(nations$GDP), log(nations$contraceptions))
-# plot(log(nations$GDP), log(nations$TFR))
+plot(nations$GDP, nations$contraception)
+plot(log(nations$GDP), log(nations$contraception))
+plot(nations$GDP, nations$infant.mortality)
+plot(log(nations$GDP), log(nations$infant.mortality))
 # mod_GDP_INFMORT <- lm(nations$GDP ~ nations$infant.mortality)
 # summary(mod_GDP_INFMORT)
 set.seed(1234)
@@ -106,8 +107,11 @@ framenew2 <- updateFrame(frame,newstrata)
 framenew2 <- framenew2[order(framenew2$ID),]
 framenew2$Y2 <- nations$infant.mortality
 framenew2$Y3 <- nations$contraception
-results2 <- evalSolution(framenew2, outstrata, 200, progress=FALSE)
-# results2 <- evalSolution(framenew2, solution2$aggr_strata, 200, progress=FALSE)
+# results2 <- evalSolution(framenew2, outstrata, 200, progress=FALSE)
+results2 <- evalSolution(framenew2, solution2$aggr_strata, 200, progress=FALSE)
 results2$coeff_var
 
+adjustedStrata <- adjustSize(size=45,strata=solution2$aggr_strata)
+results2 <- evalSolution(framenew2, adjustedStrata, 200, progress=FALSE)
+results2$coeff_var
 save.image(file="nations_models.RData")
