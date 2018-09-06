@@ -13,11 +13,11 @@ knitr::opts_chunk$set(
 load("Nations.RData")
 
 ## ---- eval = T-----------------------------------------------------------
+library(SamplingStrata)
 data(nations)
 head(nations)
 
 ## ---- eval = T-----------------------------------------------------------
-library(SamplingStrata)
 frame <- buildFrameDF(nations,
                       id="Country",
                       X="Country",

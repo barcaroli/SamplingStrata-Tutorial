@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 
 ```{r, include = F}
 # Run for internal use (not shown on slides)
+library(SamplingStrata)
 load("Nations.RData")
 ```
 
