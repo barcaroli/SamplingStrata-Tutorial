@@ -18,6 +18,7 @@ data(nations)
 head(nations)
 
 ## ---- eval = T-----------------------------------------------------------
+library(SamplingStrata)
 frame <- buildFrameDF(nations,
                       id="Country",
                       X="Country",
@@ -106,4 +107,10 @@ results2$coeff_var
 
 ## ---- out.width = "400px", echo = FALSE----------------------------------
 knitr::include_graphics("images/cv_ceiling.png")
+
+## ---- eval = T-----------------------------------------------------------
+newstrata <- updateStrata(strata, solution2)
+framenew <- updateFrame(frame,newstrata)
+sample <- selectSample(frame=framenew,outstrata=solution2$aggr_strata)
+head(sample)
 

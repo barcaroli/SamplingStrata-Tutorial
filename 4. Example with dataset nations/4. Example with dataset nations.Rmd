@@ -163,3 +163,15 @@ results2$coeff_var
 ```{r, out.width = "400px", echo = FALSE}
 knitr::include_graphics("images/cv_ceiling.png")
 ```
+
+## Sample selection
+
+Finally, we proceed in selecting the sample:
+
+```{r, eval = T}
+newstrata <- updateStrata(strata, solution2)
+framenew <- updateFrame(frame,newstrata)
+sample <- selectSample(frame=framenew,outstrata=solution2$aggr_strata)
+head(sample)
+```
+

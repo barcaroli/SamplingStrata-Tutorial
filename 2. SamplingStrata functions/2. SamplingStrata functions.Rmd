@@ -42,6 +42,12 @@ choice of the precision constraints for each target estimate, possibly different
 > - **selection of units** from the sampling frame with a selection scheme;
 > - evaluation of the found optimal solution in terms of **expected precision and bias**.
 
+## Procedural steps
+
+```{r, out.width = "3000px", echo = FALSE}
+knitr::include_graphics("images/Flow.png")
+```
+
 ## Definition of the sampling frame data
 
 As a first step, we have to define a frame dataframe containing the following information:

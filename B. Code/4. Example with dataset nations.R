@@ -10,6 +10,7 @@ knitr::opts_chunk$set(
 
 ## ---- include = F--------------------------------------------------------
 # Run for internal use (not shown on slides)
+library(SamplingStrata)
 load("Nations.RData")
 
 ## ---- eval = T-----------------------------------------------------------
@@ -106,4 +107,10 @@ results2$coeff_var
 
 ## ---- out.width = "400px", echo = FALSE----------------------------------
 knitr::include_graphics("images/cv_ceiling.png")
+
+## ---- eval = T-----------------------------------------------------------
+newstrata <- updateStrata(strata, solution2)
+framenew <- updateFrame(frame,newstrata)
+sample <- selectSample(frame=framenew,outstrata=solution2$aggr_strata)
+head(sample)
 
