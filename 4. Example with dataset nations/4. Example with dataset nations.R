@@ -10,10 +10,10 @@ knitr::opts_chunk$set(
 
 ## ---- include = F--------------------------------------------------------
 # Run for internal use (not shown on slides)
+library(SamplingStrata)
 load("Nations.RData")
 
 ## ---- eval = T-----------------------------------------------------------
-library(SamplingStrata)
 data(nations)
 head(nations)
 
