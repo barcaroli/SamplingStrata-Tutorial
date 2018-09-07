@@ -107,9 +107,25 @@
 
 </article></slide><slide class=""><hgroup><h2>Handling Anticipated Variance</h2></hgroup><article  id="handling-anticipated-variance-1" class="smaller">
 
-<p>In order to take into account this problem, and to limit the risk of overestimating the expected precision levels of the optimized solution, it is possible to carry out the optimization by considering, instead of the expected coefficients of variation related to proxy variables, the anticipated coefficients of variation (ACV) that depend on the model that is possile to fit on couples of real target variables and proxy ones.</p>
+<p>In order to take into account this problem, and to limit the risk of overestimating the expected precision levels of the optimized solution, it is possible to carry out the optimization by considering, instead of the expected coefficients of variation related to proxy variables, the anticipated coefficients of variation (ACV) that depend on the model that is possile to fit on couples of real target variables and proxy ones. In the current implementation, only models linking continuous variables can be considered.</p>
 
-<p>In the current implementation, only models linking continuous variables can be considered.</p>
+<p>In particular, the reference here is to two different models, the linear model with heteroscedasticity:</p>
+
+<p>\[Y=beta\times X + epsilon\]</p>
+
+<p>where</p>
+
+<p>\[epsilon \sim N(0,sig2 X^{gamma})\]</p>
+
+<p>(in case gamma = 0, then the model is homoscedastic)</p>
+
+<p>and the loglinear model:</p>
+
+<p>\[Y= \exp (beta \times log(X) + epsilon)\]</p>
+
+<p>where</p>
+
+<p>\[epsilon \sim N(0,sig2)\]</p>
 
 </article></slide><slide class=""><hgroup><h2>Example with dataset &#39;Nations&#39;</h2></hgroup><article  id="example-with-dataset-nations" class="smaller">
 
