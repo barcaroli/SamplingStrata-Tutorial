@@ -91,8 +91,5 @@ framenew2$Y3 <- nations$contraception
 results2 <- evalSolution(framenew2, solution2$aggr_strata, 50, progress = FALSE)
 results2$coeff_var
 
-## ---- eval = T-----------------------------------------------------------
-adjustedStrata <- adjustSize(size=45,solution2$aggr_strata)
-results2 <- evalSolution(framenew2, adjustedStrata, 200, progress=FALSE)
-results2$coeff_var
+
 
