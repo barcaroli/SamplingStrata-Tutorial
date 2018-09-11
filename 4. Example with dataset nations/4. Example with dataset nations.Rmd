@@ -21,7 +21,6 @@ knitr::opts_chunk$set(
 ```{r, include = F}
 # Run for internal use (not shown on slides)
 library(SamplingStrata)
-load("Nations.RData")
 ```
 
 ## Dataset "nations"
@@ -70,7 +69,7 @@ cv
 
 ## Step 4: Optimization
 
-```{r, eval = F}
+```{r, eval = T}
 solution1 <-
 	optimizeStrata(
 	errors = cv , 
@@ -107,7 +106,7 @@ knitr::include_graphics("images/Rplot_kmeans_domain1.png")
 
 ## Step 4: Optimization
 
-```{r, eval = F}
+```{r, eval = T}
 solution2 <-
 	optimizeStrata(
 	errors = cv , 
@@ -129,13 +128,22 @@ sum(ceiling(solution2$aggr_strata$SOLUZ))
 nrow(solution2$aggr_strata)	
 ```
 
+## Analysis of aggregated strata
+
+```{r, eval = T}
+newstrata <- updateStrata(strata,solution2,writeFiles = T)
+aggr <- read.delim("strata_aggregation.txt")
+aggr$X1 <- as.factor(aggr$X1)
+levels(aggr$X1) <- levels(frame$X1)
+head(aggr)
+```
+
 ## Step 5: expected CV
 
-```{r, eval = F}
-newstrata <- updateStrata(strata,solution2)
+```{r, eval = T}
 framenew <- updateFrame(frame,newstrata)
 results1 <- evalSolution(framenew, solution2$aggr_strata, 
-                         200, writeFiles=TRUE)
+                         100, writeFiles=TRUE, progress=FALSE)
 ```
 ```{r, eval = T}
 results1$coeff_var
@@ -147,22 +155,7 @@ results1$coeff_var
 knitr::include_graphics("images/cv_rounded.png")
 ```
 
-## Improving expected CV
 
-```{r, eval = F}
-oustrata <- solution2$aggr_strata
-outstrata$SOLUZ <- ceiling(solution2$aggr_strata$SOLUZ)
-results2 <- evalSolution(framenew, outstrata, 200, writeFiles=TRUE)
-```
-```{r, eval = T}
-results2$coeff_var
-```
-
-## CV
-
-```{r, out.width = "400px", echo = FALSE}
-knitr::include_graphics("images/cv_ceiling.png")
-```
 
 ## Sample selection
 
