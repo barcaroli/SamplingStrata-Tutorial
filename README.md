@@ -1,6 +1,9 @@
 # SamplingStrata-Tutorial
-Tutorial prepared for the uRos2018 conference
-Use of R package SamplingStrata for the Optimal Stratification of Sampling Frames for Multipurpose Sampling Surveys
+
+# Tutorial prepared for the uRos2018 conference
+
+# Use of R package SamplingStrata for the Optimal Stratification of Sampling Frames for Multipurpose Sampling Surveys
+
 The aim of this tutorial is to enable the participants to learn how to use the R package “SamplingStrata” in order to optimize 
 the design of stratified samples. The package offers an approach for the determination of the best stratification of a sampling frame, 
 the one that ensures the minimum sample cost under the condition to satisfy precision constraints in a multivariate and multi-domain case. 
@@ -12,4 +15,5 @@ optimized strata labels to the sampling frame; (d) select a sample from the new 
 compliance of the design to precision constraints. The package also allows to consider the anticipate variance when the survey target 
 variables are not available in the frame, but only proxy ones. A comparison to package “stratification” (valid for univariate designs) 
 will be illustrated. 
+
 Exercises will be proposed to participants, that are expected to be acquainted with basics of sampling theory. 
